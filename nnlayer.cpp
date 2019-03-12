@@ -1,7 +1,7 @@
 #include "nnlayer.h"
 #include <stdio.h>
 #include <cmath>
-#define paratype float
+//directory for parameters
 const char* conv_1_w = "./wbin/W_in_1.bin";
 const char* conv_1_b = "./wbin/b_in_1.bin";
 const char* conv_2_w = "./wbin/W_in_2.bin";
@@ -21,7 +21,8 @@ const char* MLP_1_b = "./wbin/softmax_b.bin";
 const char* MLP_2_w = "./wbin/softmax_w2.bin";
 const char* MLP_2_b = "./wbin/softmax_b2.bin";
 
-inline void conv1d(float data_input[input_length],float result[input_length], float kernel[conv1d_size], float bias) {
+inline void conv1d(paratype data_input[input_length],paratype result[input_length], paratype kernel[conv1d_size], paratype bias) {
+	//conv1d kernel 3
 	for (int i = 0; i < input_length - 2; i++)
 	{
 	 result[i+1] = bias;
@@ -42,7 +43,7 @@ inline void conv1d(float data_input[input_length],float result[input_length], fl
 	}
 }
 
-void MatMul(float* A, float* B, float* C,int row, int mulsize, int col) { 
+void MatMul(paratype* A, paratype* B, paratype* C,int row, int mulsize, int col) { 
 	// C=A*B  A row*mulsize  B  mulsize*col
 	for (int rr = 0; rr < row; rr++) {
 		for (int cc = 0; cc < col; cc++) {
@@ -55,7 +56,7 @@ void MatMul(float* A, float* B, float* C,int row, int mulsize, int col) {
 }
 }
 
-inline void MatMulAdd(float* A, float* B, float* C, int mulsize, int col,float* LSTMbias) {
+inline void MatMulAdd(paratype* A, paratype* B, paratype* C, int mulsize, int col,paratype* LSTMbias) {
 	// C=A*B+bias  A row(1)*mulsize  B  mulsize*col
 	for (int cc = 0; cc < col; cc++) {
 		C[cc] = 0; 
@@ -70,15 +71,15 @@ inline void MatMulAdd(float* A, float* B, float* C, int mulsize, int col,float* 
 	}
 }
 
-void LSTM(float* input, float* state_c, float* state_h, float* LSTMkernel, float* LSTMbias,float* mulmid, float* concact){
+void LSTM(paratype* input, paratype* state_c, paratype* state_h, paratype* LSTMkernel, paratype* LSTMbias,paratype* mulmid, paratype* concact){
 // kernel 1000*2000
 // concat --> MATMUL --> biasadd
 	//Split
-	float* i_gate = mulmid;
-	float* a_gate = mulmid+500;
-	float* f_gate = mulmid+1000;
-	float* o_gate = mulmid+1500;
-	//gate 1-4 i a f o from kernel
+	paratype* i_gate = mulmid;
+	paratype* a_gate = mulmid+500;
+	paratype* f_gate = mulmid+1000;
+	paratype* o_gate = mulmid+1500;
+	//gate 1-4 are: i a f o from kernel matrix
 	for (int i = 0; i < 500; i++)
 	{
 		concact[i] = input[i];
@@ -122,76 +123,78 @@ void LSTM(float* input, float* state_c, float* state_h, float* LSTMkernel, float
 		state_h[i] = tanhf(state_c[i]) * o_gate[i];  //o^t*Tanh
 	}
 }
-void Spmodel(float* data_input,float* pre_result) {    
-//make inference
+
+
+void Spmodel(paratype* data_input,paratype* pre_result) {    
+//make the whole inference
 	static int steps = 0;
-	static float conv1d_1_kernel[3];
-	static float conv1d_1_bias[1];
-	static float conv1d_2_kernel[3];
-	static float conv1d_2_bias[1];
-	static float* conv_result_1;
-	static float* conv_result_2;
-	static float* state_c_0 ;
-	static float* state_h_0 ;
-	static float* state_c_1 ;
-	static float* state_h_1 ;
-	static float* state_c_2 ;
-	static float* state_h_2 ;
-	static float* state_c_3 ;
-	static float* state_h_3 ;
-	static float* state_c_4 ;
-	static float* state_h_4 ;
-	static float* LSTMkernel_0 ;
-	static float* LSTMbias_0  ;
-	static float* LSTMkernel_1;
-	static float* LSTMbias_1  ;
-	static float* LSTMkernel_2 ;
-	static float* LSTMbias_2  ;
-	static float* LSTMkernel_3 ;
-	static float* LSTMbias_3  ;
-	static float* LSTMkernel_4 ;
-	static float* LSTMbias_4  ;
-	static float* mlpweight_1 ;
-	static float* mlpweight_2 ;
-	static float* mlpbias_1 ;
-	static float* mlpbias_2 ;
-	static float* mlpresult_1 ;
-	static float* mlpresult_2 ;
-	static float* mulmid;
-	static float* concact;
+	static paratype conv1d_1_kernel[3];
+	static paratype conv1d_1_bias[1];
+	static paratype conv1d_2_kernel[3];
+	static paratype conv1d_2_bias[1];
+	static paratype* conv_result_1;
+	static paratype* conv_result_2;
+	static paratype* state_c_0 ;
+	static paratype* state_h_0 ;
+	static paratype* state_c_1 ;
+	static paratype* state_h_1 ;
+	static paratype* state_c_2 ;
+	static paratype* state_h_2 ;
+	static paratype* state_c_3 ;
+	static paratype* state_h_3 ;
+	static paratype* state_c_4 ;
+	static paratype* state_h_4 ;
+	static paratype* LSTMkernel_0 ;
+	static paratype* LSTMbias_0  ;
+	static paratype* LSTMkernel_1;
+	static paratype* LSTMbias_1  ;
+	static paratype* LSTMkernel_2 ;
+	static paratype* LSTMbias_2  ;
+	static paratype* LSTMkernel_3 ;
+	static paratype* LSTMbias_3  ;
+	static paratype* LSTMkernel_4 ;
+	static paratype* LSTMbias_4  ;
+	static paratype* mlpweight_1 ;
+	static paratype* mlpweight_2 ;
+	static paratype* mlpbias_1 ;
+	static paratype* mlpbias_2 ;
+	static paratype* mlpresult_1 ;
+	static paratype* mlpresult_2 ;
+	static paratype* mulmid;
+	static paratype* concact;
 	static int firstread = 1;  //only read parameter once
        if(firstread)
        {
-		  conv_result_1 = new float[input_length];
-		  conv_result_2 = new float[input_length];
-		  state_c_0 = new float[input_length];
-		  state_h_0 = new float[input_length];
-		  state_c_1 = new float[input_length];
-		  state_h_1 = new float[input_length];
-		  state_c_2 = new float[input_length];
-		  state_h_2 = new float[input_length];
-		  state_c_3 = new float[input_length];
-		  state_h_3 = new float[input_length];
-		  state_c_4 = new float[input_length];
-		  state_h_4 = new float[input_length];
-		  LSTMkernel_0 = new float[1000 * 2000];
-		  LSTMbias_0 = new float[2000];
-		  LSTMkernel_1 = new float[1000 * 2000];
-		  LSTMbias_1 = new float[2000];
-		  LSTMkernel_2 = new float[1000 * 2000];
-		  LSTMbias_2 = new float[2000];
-		  LSTMkernel_3 = new float[1000 * 2000];
-		  LSTMbias_3 = new float[2000];
-		  LSTMkernel_4 = new float[1000 * 2000];
-		  LSTMbias_4 = new float[2000];
-		  mlpweight_1 = new float[input_length * input_length];
-		  mlpweight_2 = new float[input_length * input_length];
-		  mlpbias_1 = new float[input_length];
-		  mlpbias_2 = new float[input_length];
-		  mlpresult_1 = new float[input_length];
-		  mlpresult_2 = new float[input_length];
-		  mulmid = new float[2000];
-		  concact = new float[1000];
+		  conv_result_1 = new paratype[input_length];
+		  conv_result_2 = new paratype[input_length];
+		  state_c_0 = new paratype[input_length];
+		  state_h_0 = new paratype[input_length];
+		  state_c_1 = new paratype[input_length];
+		  state_h_1 = new paratype[input_length];
+		  state_c_2 = new paratype[input_length];
+		  state_h_2 = new paratype[input_length];
+		  state_c_3 = new paratype[input_length];
+		  state_h_3 = new paratype[input_length];
+		  state_c_4 = new paratype[input_length];
+		  state_h_4 = new paratype[input_length];
+		  LSTMkernel_0 = new paratype[1000 * 2000];
+		  LSTMbias_0 = new paratype[2000];
+		  LSTMkernel_1 = new paratype[1000 * 2000];
+		  LSTMbias_1 = new paratype[2000];
+		  LSTMkernel_2 = new paratype[1000 * 2000];
+		  LSTMbias_2 = new paratype[2000];
+		  LSTMkernel_3 = new paratype[1000 * 2000];
+		  LSTMbias_3 = new paratype[2000];
+		  LSTMkernel_4 = new paratype[1000 * 2000];
+		  LSTMbias_4 = new paratype[2000];
+		  mlpweight_1 = new paratype[input_length * input_length];
+		  mlpweight_2 = new paratype[input_length * input_length];
+		  mlpbias_1 = new paratype[input_length];
+		  mlpbias_2 = new paratype[input_length];
+		  mlpresult_1 = new paratype[input_length];
+		  mlpresult_2 = new paratype[input_length];
+		  mulmid = new paratype[2000];
+		  concact = new paratype[1000];
 
 	FILE* fr = fopen(conv_1_w, "rb");
 	fread(conv1d_1_kernel, sizeof(paratype), 3, fr);
@@ -273,7 +276,7 @@ void Spmodel(float* data_input,float* pre_result) {
        }
 	
   	//start calc
-	//1dconv
+	//1d-conv
 	conv1d(data_input, conv_result_1, conv1d_1_kernel, *conv1d_1_bias);
 	//doing elu
 	for (int i = 0; i < input_length; i++)
@@ -283,9 +286,10 @@ void Spmodel(float* data_input,float* pre_result) {
 			conv_result_1[i] = expf(conv_result_1[i]) - 1;  
 		}
 	}
+	//1d-conv
 	conv1d(conv_result_1, conv_result_2, conv1d_2_kernel, *conv1d_2_bias);
 
-	//LSTM
+	//LSTM computing
 	//initialize LSTM state
 
 	if (steps==0) //time step
@@ -321,7 +325,7 @@ void Spmodel(float* data_input,float* pre_result) {
 	{
 		steps = 0;
 	}
-	//5 layers
+	//5 layers  state_h_0 is the output of LSTM
 	LSTM(conv_result_2, state_c_0, state_h_0,LSTMkernel_0, LSTMbias_0, mulmid,concact);
 	
 	LSTM(state_h_0, state_c_1, state_h_1 ,LSTMkernel_1, LSTMbias_1, mulmid, concact);
@@ -332,7 +336,7 @@ void Spmodel(float* data_input,float* pre_result) {
 
 	LSTM(state_h_3, state_c_4, state_h_4, LSTMkernel_4, LSTMbias_4, mulmid, concact);
 
-	/*
+	/* 
 	printf("c:\n");
 	for (int i = 0; i < 500; i++)
 	{
